@@ -4,14 +4,14 @@ import os.path
 from collections import Counter
 
 
-def load_raw_data_from_file(filepath):
+def load_lines_list_from_file(filepath):
     with open(filepath, "r", encoding="utf-8") as file:
         return file.readlines()
 
 
-def find_words(raw_lines):
+def find_words(lines_list):
     word_hyphenation = None
-    for line in raw_lines:
+    for line in lines_list:
         line = line.strip()
         if line:
             if word_hyphenation:
@@ -27,7 +27,7 @@ def find_words(raw_lines):
                 yield word
 
 
-def get_parsed_words_list(raw_lines):
+def get_words_list(raw_lines):
     parsed_words_list = []
     words = find_words(raw_lines)
     for word in words:
@@ -36,22 +36,25 @@ def get_parsed_words_list(raw_lines):
     return parsed_words_list
 
 
-def get_most_frequent_words(raw_list_of_words, top_limit=10):
-    words_counter = Counter(raw_list_of_words)
+def get_most_frequent_words(words_list, top_limit=10):
+    words_counter = Counter(words_list)
     return words_counter.most_common(top_limit)
 
 
-if __name__ == "__main__":
+def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--filepath", help="Path to txt file")
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = parse_args()
     if os.path.isfile(args.filepath):
-        raw_data = load_raw_data_from_file(args.filepath)
-        parsed_words_list = get_parsed_words_list(raw_data)
-        most_frequent_words = get_most_frequent_words(parsed_words_list)
-        print("most frequent words:\n")
+        lines_list = load_lines_list_from_file(args.filepath)
+        words_list = get_words_list(lines_list)
+        most_frequent_words = get_most_frequent_words(words_list)
+        print("most frequent words:")
         for word, count in most_frequent_words:
-            print("{} - Occured {} times".format(word, count))
+            print("{} - {} times".format(word, count))
     else:
         print("filepath not found")
-    print("Script has finished its work")
